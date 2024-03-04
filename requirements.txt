@@ -1,0 +1,12 @@
+pandas
+autopep8
+debugpy
+ipykernel
+ipython
+jupyter_client
+jupyter_core
+keyring
+matplotlib-inline
+PyGithub
+pytest
+requests
