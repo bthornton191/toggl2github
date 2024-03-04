@@ -2,7 +2,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import List
 import requests
-import keyring
 from base64 import b64encode
 from .config import get_config
 
