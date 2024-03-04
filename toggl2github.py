@@ -17,8 +17,6 @@ def sync(toggl_project_name: str, github_project_number: int):
     """For each task in the Toggl project that has a name identical an issue in the  Github project 
     sets the `time spent` field of the Github issue to the duration of the task."""
 
-    # TODO: Test this whole function
-
     toggl_project = get_project(toggl_project_name, WORKSPACE_ID, USER)
     df_gh = pd.DataFrame.from_records(get_project_issues(GH_USER,
                                                          GH_TOKEN,
