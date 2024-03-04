@@ -11,6 +11,7 @@ setup(
     install_requires=[
         'requests',
         'keyring',
+        'pandas'
     ],
     classifiers=[
         'Programming Language :: Python',
