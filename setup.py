@@ -7,9 +7,10 @@ setup(
     author='Ben Thornton',
     author_email='bthorn191@gmail.com',
     url='https://github.com/bthornton191/toggl2github',
-    packages=['toggl', 'githubpy'],
+    packages=['toggl2github'],
     install_requires=[
         'requests',
+        'keyring',
     ],
     classifiers=[
         'Programming Language :: Python',

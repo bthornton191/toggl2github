@@ -1,14 +1,12 @@
 
 import logging
 import re
-import sys
-import argparse
 
 import pandas as pd
 
 from config import GH_TOKEN, GH_USER, USER, WORKSPACE_ID
-from githubpy import get_project_issues, set_field_value
-from toggl import get_project
+from toggl2github.githubpy import get_project_issues, set_field_value
+from toggl2github.toggl import get_project
 
 LOG = logging.getLogger(__name__)
 
@@ -41,22 +39,3 @@ def sync(toggl_project_name: str, github_project_number: int):
 
         else:
             LOG.info(f'No issue found for {desc}')
-
-
-def main():
-
-    parser = argparse.ArgumentParser(description='Sync Toggl project with Github project')
-    parser.add_argument('toggl_project_name',
-                        help='The name of the Toggl project')
-    parser.add_argument('github_project_number',
-                        help='The number of the Github project',
-                        type=int)
-
-    args = parser.parse_args()
-
-    sync(args.toggl_project_name, args.github_project_number)
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    main()

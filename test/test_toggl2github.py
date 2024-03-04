@@ -6,14 +6,14 @@ import datetime
 from unittest.mock import MagicMock, patch
 
 from config import GH_TOKEN, GH_USER
-from toggl2github import sync
+from toggl2github.toggl2github import sync
 
 
 class TestToggl2Github(unittest.TestCase):
 
-    @patch('toggl2github.get_project')
-    @patch('toggl2github.get_project_issues')
-    @patch('toggl2github.set_field_value')
+    @patch('toggl2github.toggl2github.get_project')
+    @patch('toggl2github.toggl2github.get_project_issues')
+    @patch('toggl2github.toggl2github.set_field_value')
     def test_sync(self,
                   mock_set_field_value: MagicMock,
                   mock_get_project_issues: MagicMock,

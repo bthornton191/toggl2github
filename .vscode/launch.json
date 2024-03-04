@@ -16,6 +16,7 @@
             "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
+            "env": {"PYTHONPATH": "${workspaceFolder}"},
             "justMyCode": true,
         },
         {
@@ -24,8 +25,18 @@
             "request": "launch",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "program": "${workspaceFolder}/toggl2github.py",
-            "args": ["NNL", "1"]
+            "program": "${workspaceFolder}/toggl2github",
+            "args": ["sync", "NNL", "1"]
+
+        },
+        {
+            "name": "Set Config",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "program": "${workspaceFolder}/toggl2github",
+            "args": ["config", "--gh_user", "bthornton191"]
 
         }
     ]

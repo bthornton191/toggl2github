@@ -5,10 +5,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from config import GH_TOKEN, GH_USER
-from githubpy import create_issue, get_project_field_id, get_project_fields, set_field_value
-from githubpy import get_project_issue_id, get_project_issues
-from githubpy import get_project_node_id, delete_issue
+from toggl2github.config import get_config
+from toggl2github.githubpy import create_issue, get_project_field_id, get_project_fields, set_field_value
+from toggl2github.githubpy import get_project_issue_id, get_project_issues
+from toggl2github.githubpy import get_project_node_id, delete_issue
+
+(GH_USER, GH_TOKEN) = get_config(['gh_user', 'gh_token']).values()
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

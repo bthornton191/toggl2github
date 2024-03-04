@@ -2,7 +2,7 @@ import re
 from typing import Dict
 import requests
 
-from config import GH_GRAPHQL_URL
+GH_GRAPHQL_URL = 'https://api.github.com/graphql'
 
 
 def get_project_node_id(user, token, project_number):

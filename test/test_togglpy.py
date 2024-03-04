@@ -1,7 +1,7 @@
 import unittest
 
 from config import USER, WORKSPACE_ID
-from toggl import Project, get_all_projects, get_project
+from toggl2github.toggl import Project, get_all_projects, get_project
 
 TEST_PROJECT_NAME = 'NNL'
 
