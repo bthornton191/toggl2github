@@ -6,7 +6,7 @@ setup(
     description='A Python package for syncing Toggl projects with Github projects.',
     author='Ben Thornton',
     author_email='bthorn191@gmail.com',
-    url='https://github.com/bthornton191/toggle2github',
+    url='https://github.com/bthornton191/toggl2github',
     packages=['toggl', 'githubpy'],
     install_requires=[
         'requests',
