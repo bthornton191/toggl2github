@@ -3,7 +3,6 @@ import string
 from typing import List, Tuple
 import unittest
 import datetime
-from unittest import mock
 from unittest.mock import MagicMock, patch
 
 from config import GH_TOKEN, GH_USER

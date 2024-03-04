@@ -1,11 +1,7 @@
 import unittest
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from toggl import get_project, get_all_projects, Project
 
-USER = 'bthorn191@gmail.com'
-WORKSPACE_ID = 3034777
+from config import USER, WORKSPACE_ID
+from toggl import Project, get_all_projects, get_project
 
 TEST_PROJECT_NAME = 'NNL'
 
@@ -39,4 +35,4 @@ class TestTogglpy(unittest.TestCase):
         for entry in project.entries:
             task = tasks.get(entry.description, None)
             self.assertTrue(task is not None)
-            self.assertTrue(entry in task.entries)        
+            self.assertTrue(entry in task.entries)
