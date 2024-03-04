@@ -22,7 +22,7 @@ def set_config(**kwargs):
         if RE_PASSWORD.sub('user', key) not in kwargs:
             raise ValueError(f'You must provide a user for the {key} password')
 
-        keyring.set_password(service_name='toggl2github',
+        keyring.set_password(service_name=f'toggl2github.{key}',
                              username=kwargs[RE_PASSWORD.sub('user', key)],
                              password=kwargs.pop(key))
 
@@ -51,7 +51,7 @@ def get_config(keys: List[str]) -> Dict[str, Any]:
         with CONFIG_FILE.open('r') as f:
             config = json.load(f)
 
-    missing = [k for k in keys if k not in config]
+    missing = [k for k in keys if k not in config and not RE_PASSWORD.search(k)]
     if missing:
         raise ValueError(f'The following keys are missing from {CONFIG_FILE}: '
                          + ', '.join(missing))
@@ -61,7 +61,7 @@ def get_config(keys: List[str]) -> Dict[str, Any]:
             raise ValueError(f'You must have a {RE_PASSWORD.sub("user")} in the config '
                              f'file to retrieve {key} from the keyring.')
 
-        config[key] = keyring.get_password(service_name='toggl2github',
+        config[key] = keyring.get_password(service_name=f'toggl2github.{key}',
                                            username=config[RE_PASSWORD.sub('user', key)])
 
     return {k: config[k] for k in keys}

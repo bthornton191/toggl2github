@@ -4,9 +4,10 @@ import re
 
 import pandas as pd
 
-from config import GH_TOKEN, GH_USER, USER, WORKSPACE_ID
 from toggl2github.githubpy import get_project_issues, set_field_value
 from toggl2github.toggl import get_project
+
+from .config import get_config
 
 LOG = logging.getLogger(__name__)
 
@@ -14,6 +15,11 @@ LOG = logging.getLogger(__name__)
 def sync(toggl_project_name: str, github_project_number: int):
     """For each task in the Toggl project that has a name identical an issue in the  Github project 
     sets the `time spent` field of the Github issue to the duration of the task."""
+
+    (WORKSPACE_ID, USER, GH_USER, GH_TOKEN) = get_config(['toggl_workspace_id', 
+                                                          'toggl_user',
+                                                          'gh_user',
+                                                          'gh_token']).values()
 
     toggl_project = get_project(toggl_project_name, WORKSPACE_ID, USER)
     df_gh = pd.DataFrame.from_records(get_project_issues(GH_USER,

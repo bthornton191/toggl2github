@@ -1,16 +1,21 @@
+import datetime
 import random
 import string
-from typing import List, Tuple
 import unittest
-import datetime
+from typing import List, Tuple
 from unittest.mock import MagicMock, patch
 
-from config import GH_TOKEN, GH_USER
+from toggl2github.config import get_config
 from toggl2github.toggl2github import sync
 
 
 class TestToggl2Github(unittest.TestCase):
 
+    (WORKSPACE_ID, USER, GH_USER, GH_TOKEN) = get_config(['toggl_workspace_id', 
+                                                          'toggl_user',
+                                                          'gh_user',
+                                                          'gh_token']).values()
+    
     @patch('toggl2github.toggl2github.get_project')
     @patch('toggl2github.toggl2github.get_project_issues')
     @patch('toggl2github.toggl2github.set_field_value')
@@ -23,15 +28,15 @@ class TestToggl2Github(unittest.TestCase):
         github_project_number: int = 123
 
         # Mocking the return values
-        mock_issues, mock_tasks = mock_issues_and_tasks(GH_USER, github_project_name, 1)
+        mock_issues, mock_tasks = mock_issues_and_tasks(self.GH_USER, github_project_name, 1)
         mock_get_project.return_value = MockTogglProject(mock_tasks)
         mock_get_project_issues.return_value = mock_issues
 
         sync(toggle_project_name, github_project_number)
 
         # Asserting that the set_field_value function is called with the correct arguments
-        mock_set_field_value.assert_called_with(GH_USER,
-                                                GH_TOKEN,
+        mock_set_field_value.assert_called_with(self.GH_USER,
+                                                self.GH_TOKEN,
                                                 github_project_number,
                                                 mock_issues[0]['Title'],
                                                 'Time Spent',

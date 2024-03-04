@@ -30,7 +30,9 @@ class TestSetConfig(unittest.TestCase):
         }
         set_config(**kwargs)
 
-        mock_set_password.assert_called_with(service_name='toggl2github', username='test_user1', password='test_password1')
+        mock_set_password.assert_called_with(service_name='toggl2github.password_1', 
+                                             username='test_user1', 
+                                             password='test_password1')
         self.assertTrue(CONFIG_FILE.exists())
         self.assertDictEqual({k: v for k, v in kwargs.items() if 'password' not in k},
                              json.loads(CONFIG_FILE.read_text()))
