@@ -16,14 +16,14 @@ def sync(toggl_project_name: str, github_project_number: int):
     """For each task in the Toggl project that has a name identical an issue in the  Github project 
     sets the `time spent` field of the Github issue to the duration of the task."""
 
-    (WORKSPACE_ID, USER, GH_USER, GH_TOKEN) = get_config(['toggl_workspace_id', 
-                                                          'toggl_user',
-                                                          'gh_user',
-                                                          'gh_token']).values()
+    (workspace_id, toggl_user, gh_user, gh_token) = get_config(['toggl_workspace_id', 
+                                                                'toggl_user',
+                                                                'gh_user',
+                                                                'gh_token']).values()
 
-    toggl_project = get_project(toggl_project_name, WORKSPACE_ID, USER)
-    df_gh = pd.DataFrame.from_records(get_project_issues(GH_USER,
-                                                         GH_TOKEN,
+    toggl_project = get_project(toggl_project_name, workspace_id, toggl_user)
+    df_gh = pd.DataFrame.from_records(get_project_issues(gh_user,
+                                                         gh_token,
                                                          github_project_number))
 
     for num, desc, dur in [(int(match.group(1)), match.group(2), t.duration)
@@ -33,8 +33,8 @@ def sync(toggl_project_name: str, github_project_number: int):
         if not (df := df_gh[(df_gh['Number'] == num) &
                             (df_gh['Title'].str.lower() == desc.lower())]).empty:
 
-            set_field_value(GH_USER,
-                            GH_TOKEN,
+            set_field_value(gh_user,
+                            gh_token,
                             github_project_number,
                             df['Title'].values[0],
                             'Time Spent',

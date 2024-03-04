@@ -4,12 +4,18 @@ from typing import List
 import requests
 import keyring
 from base64 import b64encode
+from .config import get_config
 
 API_ENDPOINT = 'https://api.track.toggl.com/api/v9'
 
 
 def get_auth(user: str):
-    return b64encode(f'{user}:{keyring.get_password("toggl", user)}'.encode()).decode('ascii')
+    toggl_password = get_config(['toggl_password']).get('toggl_password')
+
+    if not toggl_password:
+        raise ValueError('You must set the toggl_password in the config file')
+    
+    return b64encode(f'{user}:{toggl_password}'.encode()).decode('ascii')
 
 
 def get_all_projects(workspace_id: int, user: str):
