@@ -16,7 +16,7 @@ def sync(toggl_project_name: str, github_project_number: int):
     """For each task in the Toggl project that has a name identical an issue in the  Github project 
     sets the `time spent` field of the Github issue to the duration of the task."""
 
-    (workspace_id, toggl_user, gh_user, gh_token) = get_config(['toggl_workspace_id', 
+    (workspace_id, toggl_user, gh_user, gh_token) = get_config(['toggl_workspace_id',
                                                                 'toggl_user',
                                                                 'gh_user',
                                                                 'gh_token']).values()
@@ -41,7 +41,7 @@ def sync(toggl_project_name: str, github_project_number: int):
                             'number',
                             round(dur/3600))
 
-            LOG.info(f'{desc} - {dur} hours')
+            LOG.info(f'{desc} - {dur/3600} hours')
 
         else:
             LOG.info(f'No issue found for {desc}')
