@@ -275,8 +275,7 @@ def close_completed_milestones(repo):
         LOG.info('No milestones to close')
 
 
-if __name__ == '__main__':
-
+def main():
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
     parser = argparse.ArgumentParser(description='Github API client')
@@ -290,3 +289,7 @@ if __name__ == '__main__':
 
     if args.command == 'close_completed_milestones':
         close_completed_milestones(args.repo)
+
+
+if __name__ == '__main__':
+    main()
