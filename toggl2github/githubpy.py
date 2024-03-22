@@ -1,5 +1,7 @@
 import argparse
+import logging
 import re
+import sys
 from typing import Dict
 
 import pandas as pd
@@ -8,6 +10,7 @@ import requests
 from .config import get_config
 
 GH_GRAPHQL_URL = 'https://api.github.com/graphql'
+LOG = logging.getLogger(__name__)
 
 
 def get_project_node_id(user, token, project_number):
@@ -253,22 +256,29 @@ def close_milestone(user, token, repo, milestone_number):
 
     url = f'https://api.github.com/repos/{user}/{repo}/milestones/{milestone_number}'
     response = requests.patch(url, headers=headers, data='{"state": "closed"}')
-
-    return response.json()
+    response.raise_for_status()
+    LOG.info(f'Milestone {milestone_number} in {user}/repo closed')
 
 
 def close_completed_milestones(repo):
 
     (user, token) = get_config(['gh_user', 'gh_token']).values()
-    for num in (get_milestones(user, token, repo)
-                .query('state=="open"')
-                .query('open_issues==0')
-                .query('closed_issues>0')
-                ['number']):
+    milestone_numbers = (get_milestones(user, token, repo)
+                         .query('state=="open"')
+                         .query('open_issues==0')
+                         .query('closed_issues>0')
+                         ['number'])
+    for num in milestone_numbers:
         close_milestone(user, token, repo, num)
+
+    if len(milestone_numbers) == 0:
+        LOG.info('No milestones to close')
 
 
 if __name__ == '__main__':
+
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
     parser = argparse.ArgumentParser(description='Github API client')
 
     subparsers = parser.add_subparsers(dest='command')
