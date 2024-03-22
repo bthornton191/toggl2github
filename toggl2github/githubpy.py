@@ -5,6 +5,8 @@ from typing import Dict
 import pandas as pd
 import requests
 
+from .config import get_config
+
 GH_GRAPHQL_URL = 'https://api.github.com/graphql'
 
 
@@ -255,7 +257,9 @@ def close_milestone(user, token, repo, milestone_number):
     return response.json()
 
 
-def close_completed_milestones(user, token, repo):
+def close_completed_milestones(repo):
+
+    (user, token) = get_config(['gh_user', 'gh_token']).values()
     for num in (get_milestones(user, token, repo)
                 .query('state=="open"')
                 .query('open_issues==0')
@@ -270,11 +274,9 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(dest='command')
 
     close_completed_milestones_parser = subparsers.add_parser('close_completed_milestones')
-    close_completed_milestones_parser.add_argument('user', help='Github user')
-    close_completed_milestones_parser.add_argument('token', help='Github token')
     close_completed_milestones_parser.add_argument('repo', help='Github repo')
 
     args = parser.parse_args()
 
     if args.command == 'close_completed_milestones':
-        close_completed_milestones(args.user, args.token, args.repo)
+        close_completed_milestones(args.repo)
