@@ -236,10 +236,8 @@ def get_milestones(user, token, repo, state='all'):
     response = requests.get(url, headers=headers, params={'state': state})
     response.raise_for_status()
     return (pd.DataFrame(response.json())
-            .assign(price=lambda x: x['description'].str.replace(',', '').str.extract(r'\$(\d+)').astype(float))
             [['title',
               'number',
-              'price',
               'state',
               'created_at',
               'updated_at',
