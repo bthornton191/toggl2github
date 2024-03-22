@@ -1,5 +1,8 @@
+import argparse
 import re
 from typing import Dict
+
+import pandas as pd
 import requests
 
 GH_GRAPHQL_URL = 'https://api.github.com/graphql'
@@ -215,3 +218,63 @@ def set_field_value(user, token, project_number, issue_name, field_name, field_t
         raise Exception(response.json()['errors'])
 
     return response.json()
+
+
+def get_milestones(user, token, repo, state='all'):
+
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json',
+    }
+
+    url = f'https://api.github.com/repos/{user}/{repo}/milestones'
+    response = requests.get(url, headers=headers, params={'state': state})
+    response.raise_for_status()
+    return (pd.DataFrame(response.json())
+            .assign(price=lambda x: x['description'].str.replace(',', '').str.extract(r'\$(\d+)').astype(float))
+            [['title',
+              'number',
+              'price',
+              'state',
+              'created_at',
+              'updated_at',
+              'open_issues',
+              'closed_issues']])
+
+
+def close_milestone(user, token, repo, milestone_number):
+
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json',
+    }
+
+    url = f'https://api.github.com/repos/{user}/{repo}/milestones/{milestone_number}'
+    response = requests.patch(url, headers=headers, data='{"state": "closed"}')
+
+    return response.json()
+
+
+def close_completed_milestones(user, token, repo):
+    for num in (get_milestones(user, token, repo)
+                .query('state=="open"')
+                .query('open_issues==0')
+                .query('closed_issues>0')
+                ['number']):
+        close_milestone(user, token, repo, num)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Github API client')
+
+    subparsers = parser.add_subparsers(dest='command')
+
+    close_completed_milestones_parser = subparsers.add_parser('close_completed_milestones')
+    close_completed_milestones_parser.add_argument('user', help='Github user')
+    close_completed_milestones_parser.add_argument('token', help='Github token')
+    close_completed_milestones_parser.add_argument('repo', help='Github repo')
+
+    args = parser.parse_args()
+
+    if args.command == 'close_completed_milestones':
+        close_completed_milestones(args.user, args.token, args.repo)
