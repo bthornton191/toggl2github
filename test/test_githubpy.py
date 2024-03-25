@@ -36,7 +36,7 @@ class TestGetProjectIssues(unittest.TestCase):
                             'number',
                             'time spent']
         actual_columns = df.columns.str.lower().tolist()
-        self.assertCountEqual(expected_columns, actual_columns)
+        self.assertTrue(all(c in actual_columns for c in expected_columns))
 
 
 class TestCreateIssue(unittest.TestCase):

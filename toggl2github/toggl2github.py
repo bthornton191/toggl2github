@@ -26,9 +26,9 @@ def sync(toggl_project_name: str, github_project_number: int):
                                                          gh_token,
                                                          github_project_number))
 
-    for num, desc, dur in [(int(match.group(1)), match.group(2), t.duration)
-                           for t in toggl_project.tasks
-                           if (match := re.match(r'#(\d+) (.+)', t.description, re.I))]:
+    for num, desc, dur in [(int(match.group(1)), match.group(2), task.duration)
+                           for task in toggl_project.tasks
+                           if (match := re.match(r'#(\d+) (.+)', task.description, re.I))]:
 
         if not (df := df_gh[(df_gh['Number'] == num) &
                             (df_gh['Title'].str.lower() == desc.lower())]).empty:
@@ -41,7 +41,7 @@ def sync(toggl_project_name: str, github_project_number: int):
                             'number',
                             round(dur/3600))
 
-            LOG.info(f'{desc} - {dur/3600} hours')
+            LOG.info(f'{desc} - {dur/3600:.1f} hours')
 
         else:
             LOG.info(f'No issue found for {desc}')

@@ -1,11 +1,14 @@
 from __future__ import annotations
 from datetime import datetime, timezone
-from typing import List
+import re
+from typing import Any, Dict, List
 import requests
 from base64 import b64encode
 from .config import get_config
 
 API_ENDPOINT = 'https://api.track.toggl.com/api/v9'
+REPORTS_ENDPOINT = 'https://api.track.toggl.com/reports/api/v3'
+PAGE_SIZE = 1000
 
 
 def get_auth(user: str):
@@ -13,7 +16,7 @@ def get_auth(user: str):
 
     if not toggl_password:
         raise ValueError('You must set the toggl_password in the config file')
-    
+
     return b64encode(f'{user}:{toggl_password}'.encode()).decode('ascii')
 
 
@@ -71,21 +74,50 @@ class Project:
 
     @property
     def entries(self) -> List[Entry]:
-        response = requests.get(url='https://api.track.toggl.com/api/v9/me/time_entries',
-                                headers={'content-type': 'application/json',
-                                         'Authorization': f'Basic {get_auth(self.user)}'})
 
-        if response.status_code != 200:
-            raise Exception(f'Error: {response.status_code} - {response.text}')
+        oldest_date = datetime.fromisoformat(requests.get(
+            f'{API_ENDPOINT}/me',
+            headers={'content-type': 'application/json',
+                     'Authorization': f'Basic {get_auth(self.user)}'})
+            .json()['created_at'])
 
-        return [Entry(**r) for r in
-                response.json()
-                if r.get('pid', None) == self.id]
+        def get_req(year, i_page) -> List[Dict[str, Any]]:
+            url = f'{REPORTS_ENDPOINT}/workspace/{self.workspace_id}/search/time_entries'
+            response = requests.post(url,
+                                     headers={'content-type': 'application/json',
+                                              'Authorization': f'Basic {get_auth(self.user)}'},
+                                     json={"end_date": f'{year}-12-31',
+                                           "start_date": f'{year}-01-01',
+                                           "page_size": PAGE_SIZE,
+                                           "project_ids": [self.id],
+                                           "first_row_number": PAGE_SIZE*i_page+1})
+
+            if response.status_code != 200:
+                raise Exception(f'Error: {response.status_code} - {response.text}')
+
+            return response.json()
+
+        records: List[Dict[str, Any]] = []
+        for year in range(oldest_date.year, datetime.now().year+1):
+            for i_page in range(99999):
+                new_records = [{**rec, **th}
+                               for rec in get_req(year, i_page)
+                               for th in rec.pop('time_entries', [])]
+
+                if new_records == []:
+                    break
+                else:
+                    records += new_records
+
+        return [Entry(workspace_id=r.pop('workspace_id', self.workspace_id),
+                      project_id=r.pop('project_id', self.id),
+                      **r) for r in records]
 
     @property
     def tasks(self) -> List[Task]:
-        unique_names = set(e.description for e in self.entries)
-        return [Task([e for e in self.entries if e.description == name]) for name in unique_names]
+        entries = self.entries
+        unique_names = set(e.description for e in entries)
+        return [Task([e for e in entries if e.description == name]) for name in unique_names]
 
 
 class Entry:
@@ -98,7 +130,6 @@ class Entry:
         self.stop = (datetime.fromisoformat(kwargs.get('stop', None))
                      if kwargs.get('stop', None)
                      else datetime.now(timezone.utc))
-        # self.duration = kwargs.get('duration', None)
         self.description = kwargs.get('description', None)
         self.tags = kwargs.get('tags', None)
         self.tag_ids = kwargs.get('tag_ids', None)
