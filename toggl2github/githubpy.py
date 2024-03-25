@@ -181,6 +181,27 @@ def delete_issue(user, token, project_number, title):
     ...
 
 
+def get_issue_details(user, token, repo, issue_id):
+
+    # Set the request headers
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json',
+    }
+
+    url = f'https://api.github.com/repos/{user}/{repo}/issues/{issue_id}'
+    response = requests.get(url, headers=headers)
+
+    # Check the response status code
+    if response.status_code != 200:
+        raise Exception(f'Request failed with status code {response.status_code}')
+    elif 'errors' in response.json():
+        raise Exception(response.json()['errors'])
+
+    # Print the response content
+    return response.json()
+
+
 def set_field_value(user, token, project_number, issue_name, field_name, field_type, value):
 
     project_id = get_project_node_id(user, token, project_number)
@@ -237,6 +258,7 @@ def get_milestones(user, token, repo, state='all'):
     response.raise_for_status()
     return (pd.DataFrame(response.json())
             [['title',
+              'description',
               'number',
               'state',
               'created_at',
