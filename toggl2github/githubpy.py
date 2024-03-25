@@ -193,15 +193,18 @@ def get_issue_details(user, token, repo, issue_id):
     response = requests.get(url, headers=headers)
 
     # Check the response status code
-    if response.status_code != 200:
-
-        if response.status_code == 404 and response.json()['message'] == 'Not Found':
-            raise Exception(f'Issue {issue_id} not found in {user}/{repo}')
-        else:
-            raise Exception(f'Request failed: {response.reason} ({response.status_code})')
-
-    elif 'errors' in response.json():
+    if response.status_code == 200 and 'errors' in response.json():
         raise Exception(response.json()['errors'])
+
+    elif response.status_code == 410:
+        # TODO Wrong repo
+        raise Exception(f'Issue {issue_id} not found in {user}/{repo}')
+
+    elif response.status_code == 404 and response.json()['message'] == 'Not Found':
+        raise Exception(f'Issue {issue_id} not found in {user}/{repo}')
+
+    elif response.status_code != 200:
+        raise Exception(f'Request failed: {response.reason} ({response.status_code})')
 
     # Print the response content
     return response.json()
