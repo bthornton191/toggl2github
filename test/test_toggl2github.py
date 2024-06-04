@@ -11,11 +11,11 @@ from toggl2github.toggl2github import sync
 
 class TestToggl2Github(unittest.TestCase):
 
-    (WORKSPACE_ID, USER, GH_USER, GH_TOKEN) = get_config(['toggl_workspace_id', 
+    (WORKSPACE_ID, USER, GH_USER, GH_TOKEN) = get_config(['toggl_workspace_id',
                                                           'toggl_user',
                                                           'gh_user',
                                                           'gh_token']).values()
-    
+
     @patch('toggl2github.toggl2github.get_project')
     @patch('toggl2github.toggl2github.get_project_issues')
     @patch('toggl2github.toggl2github.set_field_value')
@@ -69,6 +69,7 @@ def mock_issues_and_tasks(user: str, project_name: str, num: int) -> Tuple[List[
             'Title': ' '.join(''.join(random.choices(string.ascii_uppercase, k=random.randint(5, 10)))
                               for _ in range(random.randint(2, 5))).title(),
             'url': f'https://github.com/{user}/{project_name}/issues/' + str(number := random.randint(1, 1000)),
+            'Assignees': [user],
             'Status': random.choice(['Open', 'Closed']),
             'Phase': 'Phase' + str(random.randint(1, 10)),
             'Target Date': str(datetime.date.today() + datetime.timedelta(days=random.randint(1, 30))),

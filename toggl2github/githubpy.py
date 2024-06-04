@@ -90,6 +90,11 @@ def get_project_issues(user, token, project_number):
                         content {{
                             ... on Issue {{
                                 url
+                                assignees(first: 100) {{
+                                    nodes {{
+                                        login 
+                                    }}
+                                }}
                             }}
                         }}
                     }}
@@ -119,7 +124,12 @@ def get_project_issues(user, token, project_number):
             issue[field.pop('field')['name']] = list(field.values())[0]
 
         for k, v in item.get('content', {}).items():
-            issue[k] = v
+
+            if not isinstance(v, dict):
+                issue[k] = v
+
+            elif k == 'assignees':
+                issue[k.title()] = [assignee['login'] for assignee in v['nodes']]
 
         issues.append(issue)
 
